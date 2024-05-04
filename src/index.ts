@@ -3,6 +3,7 @@ import * as dotenv from "dotenv";
 
 import db from "./db";
 import { reconcile } from "./reconciler";
+import { ContactIdentity } from "./interfaces";
 
 dotenv.config();
 
@@ -17,9 +18,15 @@ app.get("/", async (req, res) => {
 });
 
 app.post("/identify", async (req, res) => {
-  console.log("INPUTS", req.body.phoneNumber, req.body.email);
-  const grpId = await reconcile(req.body.phoneNumber, req.body.email);
-  res.status(200).json(grpId);
+  const input: ContactIdentity = req.body;
+  if (!input.email && !input.phoneNumber) {
+    res.status(400).json({
+      error: "Empty Credentials provided",
+    });
+  } else {
+    const grpId: Number = await reconcile(input);
+    res.status(200).json(grpId);
+  }
 });
 
 app.listen(port, async () => {

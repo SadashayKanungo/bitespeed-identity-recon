@@ -8,8 +8,8 @@ export const queries = {
 
   CREATE_TABLE: `CREATE TABLE IF NOT EXISTS ${table_name}(
     id              int NOT NULL AUTO_INCREMENT,
-    phoneNumber     varchar(25) NOT NULL,
-    email           varchar(25) NOT NULL,
+    phoneNumber     varchar(25),
+    email           varchar(25),
     linkedId        int,
     linkPrecedence  ENUM('primary','secondary'),
     created_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP,

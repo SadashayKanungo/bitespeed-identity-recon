@@ -1,14 +1,13 @@
-import { queries } from "./queries";
 import db from "./db";
+import { ContactIdentity } from "./interfaces";
 
-export const reconcile = async (
-  phone: string,
-  email: string
-): Promise<Number> => {
-  const phone_match_id: Number | null = await db.matchPhone(phone);
-  const email_match_id: Number | null = await db.matchEmail(email);
-
-  console.log("MATCHED IDS", phone_match_id, email_match_id);
+export const reconcile = async (identity: ContactIdentity): Promise<Number> => {
+  const phone_match_id: Number | null = identity.phoneNumber
+    ? await db.matchPhone(identity.phoneNumber)
+    : null;
+  const email_match_id: Number | null = identity.email
+    ? await db.matchEmail(identity.email)
+    : null;
 
   var returnId: Number = 0;
 
@@ -31,15 +30,15 @@ export const reconcile = async (
     }
   } else if (phone_match_id != null) {
     // Only Phone is present. Create Secondary contact.
-    await db.insertSecondary(phone, email, phone_match_id);
+    await db.insertSecondary(identity, phone_match_id);
     returnId = phone_match_id;
   } else if (email_match_id != null) {
     // Only Email is present. Create Secondary contact.
-    await db.insertSecondary(phone, email, email_match_id);
+    await db.insertSecondary(identity, email_match_id);
     returnId = email_match_id;
   } else {
     // Both phone and email are new. Create New Primary contact.
-    const grpId = await db.insertPrimary(phone, email);
+    const grpId = await db.insertPrimary(identity);
     returnId = grpId;
   }
 

@@ -1,6 +1,7 @@
 import mysql, { ResultSetHeader } from "mysql2/promise";
 
 import { queries } from "./queries";
+import { ContactIdentity, MatchResult } from "./interfaces";
 
 class Database {
   private connection: mysql.Connection | null = null;
@@ -35,32 +36,35 @@ class Database {
     return result;
   }
 
-  public async matchPhone(phone: string): Promise<Number | null> {
-    const result = await this.query(queries.MATCH_PHONE, [phone]);
+  public async matchPhone(phone: Number): Promise<Number | null> {
+    const result: MatchResult[] = await this.query(queries.MATCH_PHONE, [
+      phone,
+    ]);
     return result.length == 0 ? null : result[0].matchId;
   }
 
   public async matchEmail(email: string): Promise<Number | null> {
-    const result = await this.query(queries.MATCH_EMAIL, [email]);
+    const result: MatchResult[] = await this.query(queries.MATCH_EMAIL, [
+      email,
+    ]);
     return result.length == 0 ? null : result[0].matchId;
   }
 
-  public async insertPrimary(phone: string, email: string): Promise<Number> {
+  public async insertPrimary(identity: ContactIdentity): Promise<Number> {
     const result: ResultSetHeader = await this.query(queries.INSERT_PRIMARY, [
-      phone,
-      email,
+      identity.phoneNumber,
+      identity.email,
     ]);
     return result.insertId;
   }
 
   public async insertSecondary(
-    phone: string,
-    email: string,
+    identity: ContactIdentity,
     linkId: Number
   ): Promise<void> {
     const result = await this.query(queries.INSERT_SECONDARY, [
-      phone,
-      email,
+      identity.phoneNumber,
+      identity.email,
       linkId,
     ]);
   }
