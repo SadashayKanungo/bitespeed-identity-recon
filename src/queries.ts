@@ -16,4 +16,6 @@ export const queries = {
     updated_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
         PRIMARY KEY (id)
     );`,
+
+  ALL_CONTACTS: `SELECT * FROM ${table_name};`,
 };

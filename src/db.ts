@@ -30,11 +30,9 @@ class Database {
     }
   }
 
-  public async finalize(): Promise<void> {
-    if (this.connection) {
-      await this.connection.end();
-      console.log("Connection to database closed");
-    }
+  public async show() {
+    const result = await this.query(queries.ALL_CONTACTS);
+    return result;
   }
 }
 
