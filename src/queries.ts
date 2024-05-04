@@ -18,4 +18,24 @@ export const queries = {
     );`,
 
   ALL_CONTACTS: `SELECT * FROM ${table_name};`,
+
+  MATCH_PHONE: `SELECT distinct coalesce(linkedId,id) as matchId from ${table_name} where phoneNumber=?;`,
+
+  MATCH_EMAIL: `SELECT distinct coalesce(linkedId,id) as matchId from ${table_name} where email=?;`,
+
+  INSERT_PRIMARY: `INSERT INTO 
+    ${table_name} (phonenumber,email,linkedId,linkPrecedence) 
+    VALUES (?,?,null,"primary");`,
+
+  INSERT_SECONDARY: `INSERT INTO 
+    ${table_name} (phonenumber,email,linkedId,linkPrecedence) 
+    VALUES (?,?,?,"secondary");`,
+
+  MAKE_SECONDARY: `UPDATE ${table_name} SET linkedId=?, linkPrecedence='secondary' WHERE id=? OR linkedId=?;`,
+
+  GET_PHONES: `SELECT DISTINCT phonenumber FROM ${table_name} WHERE COALESCE(linkedId,id)=?;`,
+
+  GET_EMAILS: `SELECT DISTINCT email FROM ${table_name} WHERE COALESCE(linkedId,id)=?;`,
+
+  GET_SECONDARY: `SELECT id FROM ${table_name} WHERE linkedId=?;`,
 };

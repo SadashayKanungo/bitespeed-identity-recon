@@ -2,6 +2,7 @@ import express from "express";
 import * as dotenv from "dotenv";
 
 import db from "./db";
+import { reconcile } from "./reconciler";
 
 dotenv.config();
 
@@ -15,8 +16,10 @@ app.get("/", async (req, res) => {
   res.status(200).json(contacts);
 });
 
-app.post("/identify", (req, res) => {
-  res.send(req.body);
+app.post("/identify", async (req, res) => {
+  console.log("INPUTS", req.body.phoneNumber, req.body.email);
+  const grpId = await reconcile(req.body.phoneNumber, req.body.email);
+  res.status(200).json(grpId);
 });
 
 app.listen(port, async () => {

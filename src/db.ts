@@ -1,4 +1,4 @@
-import mysql from "mysql2/promise";
+import mysql, { ResultSetHeader } from "mysql2/promise";
 
 import { queries } from "./queries";
 
@@ -17,7 +17,7 @@ class Database {
     console.log("Connected to database");
   }
 
-  public async query(sql: string, values?: any[]): Promise<any> {
+  private async query(sql: string, values?: any[]): Promise<any> {
     if (!this.connection) {
       throw new Error("Database connection not established");
     }
@@ -34,6 +34,49 @@ class Database {
     const result = await this.query(queries.ALL_CONTACTS);
     return result;
   }
+
+  public async matchPhone(phone: string): Promise<Number | null> {
+    const result = await this.query(queries.MATCH_PHONE, [phone]);
+    return result.length == 0 ? null : result[0].matchId;
+  }
+
+  public async matchEmail(email: string): Promise<Number | null> {
+    const result = await this.query(queries.MATCH_EMAIL, [email]);
+    return result.length == 0 ? null : result[0].matchId;
+  }
+
+  public async insertPrimary(phone: string, email: string): Promise<Number> {
+    const result: ResultSetHeader = await this.query(queries.INSERT_PRIMARY, [
+      phone,
+      email,
+    ]);
+    return result.insertId;
+  }
+
+  public async insertSecondary(
+    phone: string,
+    email: string,
+    linkId: Number
+  ): Promise<void> {
+    const result = await this.query(queries.INSERT_SECONDARY, [
+      phone,
+      email,
+      linkId,
+    ]);
+  }
+
+  public async combineGroups(
+    groupId: Number,
+    secondaryId: Number
+  ): Promise<void> {
+    const result = await this.query(queries.MAKE_SECONDARY, [
+      groupId,
+      secondaryId,
+      secondaryId,
+    ]);
+  }
+
+  //   public async getGroup(id: number){}
 }
 
 const db = new Database();
