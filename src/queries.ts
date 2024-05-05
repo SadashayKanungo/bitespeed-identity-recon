@@ -1,5 +1,5 @@
 const db_name = "identity_recon";
-const table_name = "contacts";
+const table_name = "Contact";
 
 export const queries = {
   CREATE_DB: `CREATE DATABASE IF NOT EXISTS ${db_name};`,
@@ -19,23 +19,23 @@ export const queries = {
 
   ALL_CONTACTS: `SELECT * FROM ${table_name};`,
 
-  MATCH_PHONE: `SELECT distinct coalesce(linkedId,id) as matchId from ${table_name} where phoneNumber=?;`,
+  MATCH_PHONE: `SELECT distinct coalesce(linkedId,id) as result from ${table_name} where phoneNumber=?;`,
 
-  MATCH_EMAIL: `SELECT distinct coalesce(linkedId,id) as matchId from ${table_name} where email=?;`,
+  MATCH_EMAIL: `SELECT distinct coalesce(linkedId,id) as result from ${table_name} where email=?;`,
 
   INSERT_PRIMARY: `INSERT INTO 
-    ${table_name} (phonenumber,email,linkedId,linkPrecedence) 
+    ${table_name} (phoneNumber,email,linkedId,linkPrecedence) 
     VALUES (?,?,null,"primary");`,
 
   INSERT_SECONDARY: `INSERT INTO 
-    ${table_name} (phonenumber,email,linkedId,linkPrecedence) 
+    ${table_name} (phoneNumber,email,linkedId,linkPrecedence) 
     VALUES (?,?,?,"secondary");`,
 
   MAKE_SECONDARY: `UPDATE ${table_name} SET linkedId=?, linkPrecedence='secondary' WHERE id=? OR linkedId=?;`,
 
-  GET_PHONES: `SELECT DISTINCT phonenumber FROM ${table_name} WHERE COALESCE(linkedId,id)=?;`,
+  GET_PHONES: `SELECT DISTINCT phoneNumber AS result FROM ${table_name} WHERE COALESCE(linkedId,id)=? AND phoneNumber IS NOT NULL;`,
 
-  GET_EMAILS: `SELECT DISTINCT email FROM ${table_name} WHERE COALESCE(linkedId,id)=?;`,
+  GET_EMAILS: `SELECT DISTINCT email AS result FROM ${table_name} WHERE COALESCE(linkedId,id)=? AND email IS NOT NULL;`,
 
-  GET_SECONDARY: `SELECT id FROM ${table_name} WHERE linkedId=?;`,
+  GET_SECONDARY: `SELECT id AS result FROM ${table_name} WHERE linkedId=?;`,
 };

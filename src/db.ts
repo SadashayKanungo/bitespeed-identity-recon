@@ -1,7 +1,13 @@
 import mysql, { ResultSetHeader } from "mysql2/promise";
 
 import { queries } from "./queries";
-import { ContactIdentity, MatchResult } from "./interfaces";
+import {
+  AggNumResult,
+  AggStrResult,
+  ContactGroup,
+  ContactIdentity,
+  MatchResult,
+} from "./interfaces";
 
 class Database {
   private connection: mysql.Connection | null = null;
@@ -36,21 +42,21 @@ class Database {
     return result;
   }
 
-  public async matchPhone(phone: Number): Promise<Number | null> {
+  public async matchPhone(phone: number): Promise<number> {
     const result: MatchResult[] = await this.query(queries.MATCH_PHONE, [
       phone,
     ]);
-    return result.length == 0 ? null : result[0].matchId;
+    return result.length == 0 ? 0 : result[0].result;
   }
 
-  public async matchEmail(email: string): Promise<Number | null> {
+  public async matchEmail(email: string): Promise<number> {
     const result: MatchResult[] = await this.query(queries.MATCH_EMAIL, [
       email,
     ]);
-    return result.length == 0 ? null : result[0].matchId;
+    return result.length == 0 ? 0 : result[0].result;
   }
 
-  public async insertPrimary(identity: ContactIdentity): Promise<Number> {
+  public async insertPrimary(identity: ContactIdentity): Promise<number> {
     const result: ResultSetHeader = await this.query(queries.INSERT_PRIMARY, [
       identity.phoneNumber,
       identity.email,
@@ -60,7 +66,7 @@ class Database {
 
   public async insertSecondary(
     identity: ContactIdentity,
-    linkId: Number
+    linkId: number
   ): Promise<void> {
     const result = await this.query(queries.INSERT_SECONDARY, [
       identity.phoneNumber,
@@ -70,8 +76,8 @@ class Database {
   }
 
   public async combineGroups(
-    groupId: Number,
-    secondaryId: Number
+    groupId: number,
+    secondaryId: number
   ): Promise<void> {
     const result = await this.query(queries.MAKE_SECONDARY, [
       groupId,
@@ -80,7 +86,32 @@ class Database {
     ]);
   }
 
-  //   public async getGroup(id: number){}
+  public async getGroup(id: number): Promise<ContactGroup> {
+    const phoneResult: AggStrResult[] = await this.query(queries.GET_PHONES, [
+      id,
+    ]);
+    const emailResult: AggStrResult[] = await this.query(queries.GET_EMAILS, [
+      id,
+    ]);
+    const secIdResult: AggNumResult[] = await this.query(
+      queries.GET_SECONDARY,
+      [id]
+    );
+
+    return {
+      contact: {
+        primaryContatctId: id,
+        emails: Database.getListFromResult(emailResult),
+        phoneNumbers: Database.getListFromResult(phoneResult),
+        secondaryContactIds: Database.getNumListFromResult(secIdResult),
+      },
+    };
+  }
+
+  private static getListFromResult = (aggResult: AggStrResult[]) =>
+    aggResult.flatMap((i) => i.result);
+  private static getNumListFromResult = (aggResult: AggNumResult[]) =>
+    aggResult.flatMap((i) => i.result);
 }
 
 const db = new Database();
