@@ -3,8 +3,8 @@
 This backend service is built using Node.js and MySQL.
 It supports two endpoints:
 
-- GET '/' for showing table contents
-- POST '/identity' for reconciling an identity with the table contents
+- GET `/` for showing table contents
+- POST `/identity` for reconciling an identity with the table contents
 
 Task details can be found [here](https://bitespeed.notion.site/Bitespeed-Backend-Task-Identity-Reconciliation-53392ab01fe149fab989422300423199).
 
