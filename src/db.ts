@@ -17,9 +17,10 @@ class Database {
       host: process.env.DB_HOST,
       user: process.env.DB_USER,
       password: process.env.DB_PASSWORD,
+      database: process.env.DB_NAME,
     });
-    await this.connection.query(queries.CREATE_DB, [process.env.DB_NAME]);
-    await this.connection.query(queries.USE_DB, [process.env.DB_NAME]);
+    // await this.connection.query(queries.CREATE_DB, [process.env.DB_NAME]);
+    // await this.connection.query(queries.USE_DB, [process.env.DB_NAME]);
     await this.connection.query(queries.CREATE_TABLE);
     console.log("Connected to database");
   }
